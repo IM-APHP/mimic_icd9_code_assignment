@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 from sklearn.feature_extraction.text import TfidfVectorizer
 import unicodedata
+import pandas as pd
+import numpy as np
 
 def document_preprocessor(doc):
     # TODO: is there a way to avoid these encode/decode calls?
@@ -51,9 +53,9 @@ class FeatureExtractor(TfidfVectorizer):
 
     def transform(self, X_df):
         X = super(FeatureExtractor, self).transform(X_df.TEXT)
-        ids = X_df['HADM_ID'].values.reshape((X.shape[0], 1))        
-        X_ = np.hstack((ids, X.todense()))
-        return X_
+        #ids = np.array(X_df['HADM_ID'].reshape((X.shape[0], 1)) )
+        #X_ = np.concatenate((ids, X.todense()),axis=1)
+        return X
 
     def build_tokenizer(self):
         """
