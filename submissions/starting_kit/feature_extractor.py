@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals
-
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-
 import unicodedata
 
 def document_preprocessor(doc):
@@ -25,8 +20,9 @@ stemmer = SnowballStemmer('english')
 
 def token_processor(tokens):
     for token in tokens:
+        #remove special chars
+        token=''.join(e for e in token if e.isalnum())
         yield stemmer.stem(token)
-
 
 class FeatureExtractor(TfidfVectorizer):
     """Convert a collection of raw docs to a matrix of TF-IDF features. """
@@ -46,6 +42,7 @@ class FeatureExtractor(TfidfVectorizer):
             a DataFrame, where the text data is stored in the ``statement``
             column.
         """
+        
         super(FeatureExtractor, self).fit(X_df.TEXT)
         return self
 
@@ -54,9 +51,9 @@ class FeatureExtractor(TfidfVectorizer):
 
     def transform(self, X_df):
         X = super(FeatureExtractor, self).transform(X_df.TEXT)
-        ids = X_df['HADM_ID'].reshape((X.shape[0], 1))        
-        X = np.hstack((ids, X.todense()))
-        return X
+        ids = X_df['HADM_ID'].values.reshape((X.shape[0], 1))        
+        X_ = np.hstack((ids, X.todense()))
+        return X_
 
     def build_tokenizer(self):
         """
