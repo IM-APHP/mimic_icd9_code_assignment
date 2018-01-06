@@ -8,7 +8,7 @@ Challenge :  [Medical Information AP-HP](https://github.com/IM-APHP)
 
 MIMIC dataset : [MIMIC III](https://mimic.physionet.org/)
 
-RAMP ecosystem [RAMP](http:www.ramp.studio)
+RAMP ecosystem : [RAMP](http:www.ramp.studio)
 
 
 
