@@ -1,13 +1,14 @@
-# RAMP starting kit on the Fake News Detection
+# RAMP starting kit on Automated text classification for ICD 9 diagnosis code assignment from MIMIC Database
 
-Fake news is intentionally written to mislead readers to believe false information, which makes it difficult and nontrivial to detect based on news content. Given the prevalence of this
-new phenomenon, "Fake news" was even named the word of the year in 2016.
+Increasing large volumes of healthcare data are regularly generated in the form of Electronic Medical Records (EMR). One major issue that can be approached by capitalizing on the routinely generated textual data is the automation of diagnosis code assignment to medical notes. The task involves characterizing patient’s hospitalstay (symptoms, diagnoses, treatments, etc.) by a small number of codes, usually derived from the International Classification of Diseases (ICD). Comprehensive MIMIC database that spans more than a decade with detailed information about individual patient care offer a great opportunity for development and evaluation of automatic ICD code assignment pipelines that will ensure reproducibility of training and test methods.
 
 Authors: 
 
-[![Build Status](https://travis-ci.org/ramp-kits/fake_news.svg?branch=master)](https://travis-ci.org/ramp-kits/fake_news)
+Challenge :  [Medical Information AP-HP](https://github.com/IM-APHP)
 
-Go to [`ramp-worflow`](https://github.com/paris-saclay-cds/ramp-workflow) for more help on the [RAMP](http:www.ramp.studio) ecosystem.
+MIMIC dataset : [MIMIC III](https://mimic.physionet.org/)
+
+[`ramp-worflow`](https://github.com/paris-saclay-cds/ramp-workflow) for more help on the [RAMP](http:www.ramp.studio) ecosystem.
 
 Install ramp-workflow (rampwf), then execute
 
@@ -22,7 +23,3 @@ ramp_test_submission --submission=starting_kit
 ```
 
 to test `starting_kit` or any other submission in `submissions`.
-
-Get started on this RAMP with the [dedicated notebook](fake_news_starting_kit.ipynb).
-
-
