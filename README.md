@@ -8,9 +8,10 @@ Challenge :  [Medical Information AP-HP](https://github.com/IM-APHP)
 
 MIMIC dataset : [MIMIC III](https://mimic.physionet.org/)
 
-RAMP ecosystem [[RAMP](http:www.ramp.studio)
+RAMP ecosystem [RAMP](http:www.ramp.studio)
 
-Installation :
+
+
 `ramp-worflow`](https://github.com/paris-saclay-cds/ramp-workflow) for more help on the [RAMP](http:www.ramp.studio) ecosystem.
 
 Install ramp-workflow (rampwf), then execute
