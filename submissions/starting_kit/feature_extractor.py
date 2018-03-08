@@ -1,8 +1,41 @@
 from __future__ import unicode_literals
 from sklearn.feature_extraction.text import TfidfVectorizer
+from collections import Counter
 import unicodedata
 import pandas as pd
 import numpy as np
+import string
+import re
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
+
+stemmer = SnowballStemmer('english')
+stpwrds = set([stopword for stopword in stopwords.words('english')])
+stpwrds.update({'admission', 'birth', 'date', 'discharge', 'service','sex'})
+punct = set(string.punctuation.replace('-', ''))
+punct.update(["``", "`", "..."])
+
+def clean_text_simple(text, my_stopwords=stpwrds, punct=punct, remove_stopwords=True, stemming=False):
+    text = text.lower()
+    text = ''.join(l for l in text if l not in punct) # remove punctuation (preserving intra-word dashes)
+    text = re.sub(' +',' ',text) # strip extra white space
+    text = text.strip() # strip leading and trailing white space 
+    tokens = text.split() # tokenize (split based on whitespace)
+    tokens = [w for w in tokens if w.isalpha()]
+    tokens = [w for w in tokens if len(w) > 2]
+
+    if remove_stopwords:
+        # remove stopwords from 'tokens'
+        tokens = [x for x in tokens if x not in my_stopwords]
+
+    if stemming:
+        # apply stemmer
+        stemmer = SnowballStemmer('english')
+        tokens = [stemmer.stem(t) for t in tokens]
+
+    return tokens
+
+
 
 def document_preprocessor(doc):
     # TODO: is there a way to avoid these encode/decode calls?
@@ -15,23 +48,13 @@ def document_preprocessor(doc):
     doc = doc.decode("utf-8")
     return str(doc)
 
-
-from nltk.stem import SnowballStemmer
-
-stemmer = SnowballStemmer('english')
-
-def token_processor(tokens):
-    for token in tokens:
-        #remove special chars
-        token=''.join(e for e in token if e.isalnum())
-        yield stemmer.stem(token)
-
 class FeatureExtractor(TfidfVectorizer):
     """Convert a collection of raw docs to a matrix of TF-IDF features. """
 
     def __init__(self):
-        # see ``TfidfVectorizer`` documentation for other feature
-        # extraction parameters.
+        self.min_occur = 1
+        self.tfidf = TfidfVectorizer(ngram_range=(1, 1))
+        self.vocab = Counter()
         super(FeatureExtractor, self).__init__(
                 analyzer='word',stop_words ='english', preprocessor=document_preprocessor)
 
@@ -41,26 +64,32 @@ class FeatureExtractor(TfidfVectorizer):
         Parameters
         ----------
         X_df : pandas.DataFrame
-            a DataFrame, where the text data is stored in the ``statement``
+            a DataFrame, where the text data is stored in the ``TEXT``
             column.
         """
-        
-        super(FeatureExtractor, self).fit(X_df.TEXT)
+        statements = pd.Series(X_df.TEXT).apply(clean_text_simple)
+        self.vocab = Counter()
+        for statement in statements:
+            self.vocab.update(statement)   
+        tokens = [k for k,c in self.vocab.items() if c >= self.min_occur]      
+        statements = statements.apply(lambda x: [w for w in x if w in tokens])
+        statements = statements.apply(lambda x: ' '.join(x))
+        statements = list(statements.values)
+        self.tfidf.fit(statements)
         return self
 
     def fit_transform(self, X_df, y=None):
-        return self.fit(X_df).transform(X_df)
+        
+        self.fit(X_df)
+        return self.transform(self.X_df)
 
     def transform(self, X_df):
-        X = super(FeatureExtractor, self).transform(X_df.TEXT)
-        #ids = np.array(X_df['HADM_ID'].reshape((X.shape[0], 1)) )
-        #X_ = np.concatenate((ids, X.todense()),axis=1)
-        return X
 
-    def build_tokenizer(self):
-        """
-        Internal function, needed to plug-in the token processor, cf.
-        http://scikit-learn.org/stable/modules/feature_extraction.html#customizing-the-vectorizer-classes
-        """
-        tokenize = super(FeatureExtractor, self).build_tokenizer()
-        return lambda doc: list(token_processor(tokenize(doc)))
+        statements = pd.Series(X_df.TEXT).apply(clean_text_simple)
+        tokens = [k for k,c in self.vocab.items() if c >= self.min_occur]      
+        
+        statements = statements.apply(lambda x: [w for w in x if w in tokens])
+        statements = statements.apply(lambda x: ' '.join(x))
+        statements = list(statements.values)
+        X_fe=self.tfidf.transform(statements)
+        return X_fe
